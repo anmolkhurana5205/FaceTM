@@ -19,19 +19,27 @@ export default {
     }),
     Credentials({
       async authorize(credentials) {
+        // we don't want user with the face verification to go through 2FA so we check for the face verification before the 2FA check.
+        // Agar faceVerified == true aaya hai credentials mein, toh normal password skip karo
         if (credentials?.faceVerified === "true" && credentials?.email) {
           const user = await getUserByEmail(credentials.email as string);
+
+          // 3 conditions: user exist kare, face auth enable ho, aur email verified ho
+          // Teeno sach hain tabhi session grant karo — security ke liye zaruri hai
           if (user && user.isFaceAuthEnabled && user.emailVerified) {
-            return user; // grant session
+            return user;
           }
           return null;
         }
+        // Normal credentials flow: zod se validate karo pehle
         const validatedFields = LoginSchema.safeParse(credentials);
 
         if (validatedFields.success) {
           const { email, password } = validatedFields.data;
           const user = await getUserByEmail(email);
 
+          // Agar user ka password hi nahi (matlab wo Google/GitHub se registered hai)
+          // toh credentials login allow mat karo — warna security hole ban jayega
           if (!user || !user.password) return null;
           const passwordsMatch = await bcrypt.compare(password, user.password);
 

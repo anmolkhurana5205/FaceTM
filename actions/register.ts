@@ -29,13 +29,18 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
     };
   }
 
-  await db.user.create({
-    data: {
-      name,
-      email,
-      password: hashedPassword,
-    },
-  });
+  try {
+    await db.user.create({
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+      },
+    });
+  } catch (error) {
+    console.error("REGISTER ERROR:", error);
+    throw error;
+  }
 
   const verificationToken = await generateVerificationToken(email);
 

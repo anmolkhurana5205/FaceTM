@@ -1,5 +1,6 @@
 "use client";
 
+// NTU.
 const loadFresh = async () => {
   const api = await import("face-api.js");
   const MODEL_URL = "/models";
@@ -13,6 +14,7 @@ const loadFresh = async () => {
   return api;
 };
 
+// NTU.
 export const waitForVideoReady = (video: HTMLVideoElement): Promise<void> => {
   return new Promise((resolve, reject) => {
     if (video.readyState >= 2) {
@@ -40,6 +42,7 @@ export const waitForVideoReady = (video: HTMLVideoElement): Promise<void> => {
   });
 };
 
+// NTU.
 export const detectFaceDescriptor = async (
   video: HTMLVideoElement,
 ): Promise<Float32Array | null> => {

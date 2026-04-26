@@ -20,7 +20,10 @@ export const FaceLogin = ({ email }: FaceLoginProps) => {
   const [error, setError] = useState<string | undefined>();
 
   useEffect(() => {
+    // videoRef.current represent the actual video element. and have methods like play and pause.
     if (isStreaming && videoRef.current && streamRef.current) {
+      // src is for video files and srcObject is for videostream.
+      // both are the properties of video element itself.
       videoRef.current.srcObject = streamRef.current;
       videoRef.current
         .play()
@@ -37,6 +40,7 @@ export const FaceLogin = ({ email }: FaceLoginProps) => {
   const startCamera = async () => {
     setError(undefined);
     try {
+      // in below line i are taking access of the front camera.
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "user" },
       });
