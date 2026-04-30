@@ -59,7 +59,7 @@ export const DashboardSidebar = ({ open, onClose }: SidebarProps) => {
       )}
     >
       {/* logo */}
-      <div className="flex items-center justify-between px-6 py-5 border-b border-white/5">
+      <div className="flex items-center justify-between px-6 py-3 border-b border-white/5">
         <div className="flex items-center gap-2.5">
           <div className="relative">
             <div className="w-8 h-8 rounded-lg bg-linear-to-br from-violet-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-500/30">
