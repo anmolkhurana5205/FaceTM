@@ -7,20 +7,24 @@ const font = Poppins({ subsets: ["latin"], weight: ["600"] });
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-[radial-gradient(ellipse_at_top,skyblue,blue)]">
+    <main className="relative flex min-h-screen flex-col items-center justify-center">
       <div className="space-y-6 text-center">
         <h1
           className={cn(
             "text-6xl font-semibold text-white drop-shadow-md",
-            font.className
+            font.className,
           )}
         >
-          🔐Auth
+          FaceTM
         </h1>
-        <p className="text-white text-lg">Simple authentication service</p>
+        <p className="text-lg text-blue-300">PAY VIA FACE</p>
         <div>
           <LoginButton asChild mode="modal">
-            <Button variant="secondary" size="lg">
+            <Button
+              variant="outline"
+              size="lg"
+              className="border-white/20 bg-white/5! text-white hover:bg-white/30! hover:text-white backdrop-blur-md!"
+            >
               Sign in
             </Button>
           </LoginButton>
@@ -29,7 +33,3 @@ export default function Home() {
     </main>
   );
 }
-
-// In this project we are using the sever action instead of API routes for the form submissions.
-// This is to leverage the benefits of server actions like reduced latency, improved performance, and better developer experience.
-// Hence, there are no API routes defined for authentication in this project.

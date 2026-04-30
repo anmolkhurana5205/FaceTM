@@ -4,6 +4,7 @@ import "./globals.css";
 import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
 import { Toaster } from "@/components/ui/sonner";
+import { BubbleBackground } from "@/components/bubble-background";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,9 +21,10 @@ export default async function RootLayout({
   const session = await auth();
 
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <body className={inter.className}>
         <SessionProvider session={session}>
+          <BubbleBackground />
           <Toaster />
           {children}
         </SessionProvider>
