@@ -1,6 +1,7 @@
 generator client {
   provider = "prisma-client-js"
   // output   = "../lib/generated/prisma"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -10,6 +11,11 @@ datasource db {
 enum UserRole {
   ADMIN
   USER
+}
+
+enum TransactionType {
+  SEND
+  RECEIVE
 }
 
 model User {
@@ -25,6 +31,10 @@ model User {
   twoFactorConfirmation TwoFactorConfirmation?
   isFaceAuthEnabled     Boolean                @default(false)
   faceDescriptor        String?                @db.Text
+
+  wallet                Wallet?
+  sentTransactions      Transaction[]          @relation("SentTransactions")
+  receivedTransactions  Transaction[]          @relation("ReceivedTransactions")
 }
 
 model Account {
@@ -79,4 +89,37 @@ model TwoFactorConfirmation {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId])
+}
+
+model Wallet {
+  id        String   @id @default(cuid())
+  userId    String   @unique          // enforces one-wallet-per-user at DB level
+  balance   Decimal      @default(0)    @db.Decimal(28, 8)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+
+  @@index([userId])
+}
+
+model Transaction {
+  id          String          @id @default(cuid())
+  walletId    String
+  senderId    String
+  receiverId  String
+  amount      Decimal  @db.Decimal(28, 8)
+  type        TransactionType
+  description String?
+  createdAt   DateTime        @default(now())
+
+  wallet   Wallet @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  sender   User   @relation("SentTransactions",    fields: [senderId],   references: [id])
+  receiver User   @relation("ReceivedTransactions", fields: [receiverId], references: [id])
+
+  @@index([walletId])
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([createdAt])
 }

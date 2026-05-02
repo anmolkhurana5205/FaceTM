@@ -1,0 +1,6 @@
+-- AlterTable
+ALTER TABLE "Transaction" ALTER COLUMN "amount" SET DATA TYPE DECIMAL(28,8);
+
+-- AlterTable
+ALTER TABLE "Wallet" ALTER COLUMN "balance" SET DEFAULT 0,
+ALTER COLUMN "balance" SET DATA TYPE DECIMAL(28,8);
