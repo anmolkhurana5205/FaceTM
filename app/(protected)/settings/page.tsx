@@ -23,13 +23,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { Switch } from "@/components/ui/switch";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { FaceEnrollment } from "@/components/auth/face-enrollment";
 import { disableFaceAuth } from "@/actions/face-auth";
 
@@ -56,7 +49,6 @@ const SettingPage = () => {
     resolver: zodResolver(SettingsSchema),
     defaultValues: {
       name: user?.name || undefined,
-      role: user?.role || undefined,
       isTwoFactorEnabled: user?.isTwoFactorEnabled || undefined,
     },
   });
@@ -99,38 +91,26 @@ const SettingPage = () => {
                         {...field}
                         placeholder="anmol"
                         disabled={isPending}
-                        type="name"
+                        type="text"
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="role"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Role</FormLabel>
-                    <Select
-                      disabled={isPending}
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a role" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value={"ADMIN"}>Admin</SelectItem>
-                        <SelectItem value={"USER"}>User</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+
+              <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm bg-muted/30">
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium">Role</p>
+                  <p className="text-xs text-muted-foreground">
+                    Your account role cannot be changed here
+                  </p>
+                </div>
+                <span className="text-xs font-mono bg-secondary px-2 py-1 rounded">
+                  {user?.role ?? "USER"}
+                </span>
+              </div>
+
               {user?.isOAuth === false && user?.isFaceAuthEnabled === false && (
                 <FormField
                   control={form.control}

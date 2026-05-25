@@ -6,34 +6,51 @@ import { RecentTransactions } from "./_components/recent-transactions";
 import { StatsCard } from "./_components/stats-card";
 import { ArrowUpRight, ArrowDownLeft, Activity, Users } from "lucide-react";
 import type { RecentTransaction } from "./_components/recent-transactions";
-
-const MOCK_BALANCE = 1_000;
-
-const MOCK_TRANSACTIONS: RecentTransaction[] = [
-  {
-    id: "1",
-    type: "RECEIVE",
-    amount: 250,
-    counterpartyName: "Alice",
-    createdAt: new Date(Date.now() - 1000 * 60 * 30),
-  },
-];
-
-const MOCK_STATS = {
-  totalSent: 0,
-  totalReceived: 0,
-  txnCount: 0,
-  contacts: 0,
-};
+import { getWalletDashboardData } from "@/actions/wallet";
 
 const DashboardPage = async () => {
   const user = await currentUser();
   if (!user) redirect("/auth/login");
 
+  const result = await getWalletDashboardData();
+
+  // Fallback values if data fetch fails
+  const balance = result.success ? parseFloat(result.data.balance) : 0;
+  const totalSent = result.success ? parseFloat(result.data.totalSent) : 0;
+  const totalReceived = result.success
+    ? parseFloat(result.data.totalReceived)
+    : 0;
+  const txnCount = result.success ? result.data.txnCount : 0;
+
+  // Map TransactionWithUsers to RecentTransaction shape
+  const recentTransactions: RecentTransaction[] = result.success
+    ? result.data.recentTransactions.map((txn) => {
+        const isSend = txn.type === "SEND";
+        return {
+          id: txn.id,
+          type: txn.type as "SEND" | "RECEIVE",
+          amount: parseFloat(txn.amount.toString()),
+          counterpartyName: isSend
+            ? (txn.receiver.name ?? txn.receiver.email ?? "Unknown")
+            : (txn.sender.name ?? txn.sender.email ?? "Unknown"),
+          createdAt: new Date(txn.createdAt),
+        };
+      })
+    : [];
+
   const firstName = user.name?.split(" ")[0] ?? "there";
   const hour = new Date().getHours();
   const greeting =
     hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+
+  // Compute unique contacts from recent transactions
+  const uniqueContacts = result.success
+    ? new Set(
+        result.data.recentTransactions.map((txn) =>
+          txn.type === "SEND" ? txn.receiverId : txn.senderId,
+        ),
+      ).size
+    : 0;
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
@@ -49,7 +66,7 @@ const DashboardPage = async () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <WalletBalanceCard
-          balance={MOCK_BALANCE}
+          balance={balance}
           changePercent={undefined}
           className="lg:col-span-1"
         />
@@ -57,7 +74,9 @@ const DashboardPage = async () => {
         <div className="lg:col-span-2 grid grid-cols-2 gap-3">
           <StatsCard
             label="Total Sent"
-            value={MOCK_STATS.totalSent}
+            value={totalSent.toLocaleString(undefined, {
+              maximumFractionDigits: 2,
+            })}
             sub="coins sent"
             icon={ArrowUpRight}
             iconColor="text-red-400"
@@ -65,7 +84,9 @@ const DashboardPage = async () => {
           />
           <StatsCard
             label="Total Received"
-            value={MOCK_STATS.totalReceived}
+            value={totalReceived.toLocaleString(undefined, {
+              maximumFractionDigits: 2,
+            })}
             sub="coins received"
             icon={ArrowDownLeft}
             iconColor="text-emerald-400"
@@ -73,7 +94,7 @@ const DashboardPage = async () => {
           />
           <StatsCard
             label="Transactions"
-            value={MOCK_STATS.txnCount}
+            value={txnCount}
             sub="all time"
             icon={Activity}
             iconColor="text-amber-400"
@@ -81,7 +102,7 @@ const DashboardPage = async () => {
           />
           <StatsCard
             label="Contacts"
-            value={MOCK_STATS.contacts}
+            value={uniqueContacts}
             sub="users interacted"
             icon={Users}
             iconColor="text-sky-400"
@@ -98,7 +119,7 @@ const DashboardPage = async () => {
       </section>
 
       <section>
-        <RecentTransactions transactions={MOCK_TRANSACTIONS} />
+        <RecentTransactions transactions={recentTransactions} />
       </section>
     </div>
   );

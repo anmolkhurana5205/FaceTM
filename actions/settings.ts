@@ -22,11 +22,13 @@ export const settings = async (values: z.infer<typeof SettingsSchema>) => {
   if (!validatedFields.success) {
     return { error: "Invalid fields" };
   }
+  const { name, isTwoFactorEnabled } = validatedFields.data;
 
   await db.user.update({
     where: { id: dbUser.id },
     data: {
-      ...validatedFields.data,
+      ...(name !== undefined && { name }),
+      ...(isTwoFactorEnabled !== undefined && { isTwoFactorEnabled }),
     },
   });
 
